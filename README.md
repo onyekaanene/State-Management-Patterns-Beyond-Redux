@@ -1,239 +1,39 @@
-**State Management Patterns Beyond Redux**
+# State Management Patterns Beyond Redux
 
-Redux has long been the go-to solution for state management in React applications. But as your apps grow in complexity, it may be time to explore alternatives. In this article, discover innovative state management patterns and libraries that can simplify your codebase, tame complexity, and take your development skills to the next level.
+Redux isn't always the answer. This tutorial maps out five modern alternatives — with working code for each — so you can match the right tool to the right problem.
 
-Limitations of Redux
+## What It Covers
 
-Redux is a powerful tool, but it's not without its drawbacks. Here are a few:
+- Why Redux can be overkill: boilerplate, steep learning curve, and complexity at scale
+- **Context API** — the zero-dependency built-in for small to medium apps
+- **Zustand** — minimal API, hooks-first, and surprisingly powerful
+- **Recoil** — Facebook's atom/selector model for complex, interrelated state
+- **Jotai** — Recoil's lightweight cousin with a cleaner API
+- **MobX** — reactive, observable state that updates automatically
 
-- Boilerplate blues: Redux requires writing actions, reducers, and action creators, which can get verbose.
-- Overkill for small apps: Redux might feel like too much for simpler applications.
-- Steep learning curve: Middleware, thunks, and sagas can be overwhelming for newcomers.
+## Why It Matters
 
-Ready to break free from these limitations? Let's explore alternative state management patterns and libraries that can simplify your workflow.
+Knowing Redux is table stakes. Knowing *when not to use it* is what separates senior developers from the rest. This tutorial demonstrates architectural thinking — evaluating tradeoffs around boilerplate, performance, scalability, and team onboarding before reaching for a library.
 
-**1. React Context API**
+## Quick Comparison
 
-What is it?
+| Library | Best For | Trade-off |
+|---|---|---|
+| Context API | Small/medium apps, no extra deps | Re-render issues at scale |
+| Zustand | Global state without Redux ceremony | Smaller ecosystem |
+| Recoil | Complex, interdependent state | Still maturing |
+| Jotai | Simple, fine-grained state | Smaller ecosystem |
+| MobX | Automatic reactivity, complex apps | Different mental model |
 
-The Context API is a built-in React feature that allows you to share state across components without prop drilling.
+## Tech Stack
 
-When to Use It:
+- React (hooks-based patterns throughout)
+- Context API, Zustand, Recoil, Jotai, MobX
+- TypeScript-compatible examples
 
-Small to medium-sized applications.
+---
 
-Situations where you don’t need advanced features like middleware or time-travel debugging.
+📖 [Read the full tutorial](https://www.onyekaanene.com/state-management-patterns-beyond-redux/)
 
-Example:
-
-This code uses React's Context API to create a ThemeProvider that manages a theme state (light or dark) and provides it to child components via a custom useTheme hook. The App component consumes this context to toggle the theme and dynamically adjust the background color.
-
-import React, { createContext, useContext, useState } from 'react';
-
-const ThemeContext = createContext();
-
-export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState('light');
-
-  return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-};
-
-export const useTheme = () => useContext(ThemeContext);
-
-// Usage
-const App = () => {
-  const { theme, setTheme } = useTheme();
-
-  return (
-    <div style={{ background: theme === 'dark' ? '#333' : '#fff' }}>
-      <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-        Toggle Theme
-      </button>
-    </div>
-  );
-};
-
-Pros:
-
-Minimal setup.
-
-No external dependencies.
-
-Cons:
-
-Performance issues when deeply nested components re-render unnecessarily.
-
-**2. Zustand**
-
-What is it?
-
-Zustand is a small, fast, and scalable state management library. It uses hooks to manage state and provides a much simpler API compared to Redux.
-
-When to Use It:
-
-Applications that require global state but not Redux’s complexity.
-
-Example:
-
-The code below uses Zustand to create a simple store with a count state and an increment function, which updates the state. The Counter component consumes the store to display the current count and increment it when the button is clicked.
-
-import create from 'zustand';
-
-const useStore = create((set) => ({
-  count: 0,
-  increment: () => set((state) => ({ count: state.count + 1 })),
-}));
-
-const Counter = () => {
-  const { count, increment } = useStore();
-  return (
-    <div>
-      <p>Count: {count}</p>
-      <button onClick={increment}>Increment</button>
-    </div>
-  );
-};
-
-Pros:
-
-Simple API and minimal boilerplate.
-
-Built-in support for TypeScript.
-
-Cons:
-
-Limited ecosystem compared to Redux.
-
-**3. Recoil**
-
-What is it?
-
-Recoil is a state management library designed by Facebook for React applications. It introduces atoms (shared state) and selectors (derived state) for managing application state.
-
-When to Use It:
-
-Applications with complex state dependencies or interrelated data.
-
-Example:
-The code below uses Recoil to manage state, with an atom for countState and a selector to compute doubleCountState based on it. The Counter component reads and updates the countState while displaying both the count and its doubled value.
-
-import { atom, selector, useRecoilState, useRecoilValue } from 'recoil';
-
-const countState = atom({
-  key: 'countState',
-  default: 0,
-});
-
-const doubleCountState = selector({
-  key: 'doubleCountState',
-  get: ({ get }) => get(countState) * 2,
-});
-
-const Counter = () => {
-  const [count, setCount] = useRecoilState(countState);
-  const doubleCount = useRecoilValue(doubleCountState);
-
-  return (
-    <div>
-      <p>Count: {count}</p>
-      <p>Double Count: {doubleCount}</p>
-      <button onClick={() => setCount(count + 1)}>Increment</button>
-    </div>
-  );
-};
-
-Pros:
-
-Fine-grained reactivity.
-
-Built specifically for React.
-
-Cons:
-Relatively new and still evolving.
-
-**4. Jotai**
-
-What is it?
-
-Jotai is a minimalistic state management library inspired by Recoil, but with a simpler API.
-
-When to Use It:
-
-Applications that need a balance between simplicity and fine-grained state management.
-
-Example:
-The code below uses Jotai to manage a countAtom state, which holds the count value. The Counter component reads and updates this atom, displaying the count and providing a button to increment it.
-
-import { atom, useAtom } from 'jotai';
-
-const countAtom = atom(0);
-
-const Counter = () => {
-  const [count, setCount] = useAtom(countAtom);
-  return (
-    <div>
-      <p>Count: {count}</p>
-      <button onClick={() => setCount((c) => c + 1)}>Increment</button>
-    </div>
-  );
-};
-
-Pros:
-Lightweight and intuitive.
-
-Cons:
-Smaller ecosystem compared to Redux or Recoil.
-
-**5. MobX**
-
-What is it?
-
-MobX is a reactive state management library that uses observable data to automatically trigger updates.
-
-When to Use It:
-
-Applications that benefit from automatic state updates without manual intervention.
-
-Example:
-The code below uses MobX to create a CounterStore class with observable state (count) and an increment action. The Counter component, wrapped with observer, reacts to changes in the store and renders the count with a button to increment it.
-
-import { makeAutoObservable } from 'mobx';
-import { observer } from 'mobx-react-lite';
-
-class CounterStore {
-  count = 0;
-
-  constructor() {
-    makeAutoObservable(this);
-  }
-
-  increment() {
-    this.count++;
-  }
-}
-
-const counterStore = new CounterStore();
-
-const Counter = observer(() => (
-  <div>
-    <p>Count: {counterStore.count}</p>
-    <button onClick={() => counterStore.increment()}>Increment</button>
-  </div>
-));
-
-Pros:
-Automatic reactivity.
-
-Scales well for complex applications.
-
-Cons:
-Requires a different mental model compared to Redux.
-
-**Conclusion**
-
-State management is not a one-size-fits-all solution. While Redux remains a powerful tool, alternatives like the Context API, Zustand, Recoil, Jotai, and MobX can simplify state management or address specific use cases. Evaluate your application’s complexity, team expertise, and scalability needs to choose the best approach. Happy coding!
-
+[![GitHub](https://img.shields.io/badge/GitHub-onyekaanene-181717?style=flat&logo=github)](https://github.com/onyekaanene)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=flat&logo=linkedin)](https://www.linkedin.com/in/onyekachukwu-anene)
